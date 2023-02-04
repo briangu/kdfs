@@ -16,7 +16,7 @@ import simdjson as json
 
 def info() -> None:
     print()
-    print(f"{Fore.GREEN}Welcome to KFS REPL")
+    print(f"{Fore.GREEN}Welcome to KS REPL")
     print(f"{Fore.BLUE}author: Brian Guarraci")
     print(f"{Fore.BLUE}repo  : https://github.com/briangu/kfs")
     print(f"{Fore.YELLOW}crtl-c to quit")
