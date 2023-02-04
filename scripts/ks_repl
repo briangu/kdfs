@@ -8,7 +8,7 @@ from multiprocessing.pool import ThreadPool
 from colorama import Fore, init
 
 from dfs.df_client import DataFrameConnectionPool
-from ks import ks_client
+from ks.ks_client import KsClient
 import os
 import logging
 import simdjson as json
@@ -161,11 +161,19 @@ def execute_verify_cmd(pool, args):
     return f"verified {len(stats['all_files'])} files"
 
 
+def execute_klongpy_cmd(pool, args):
+    with pool.get_connection() as c:
+        r = c.remote_klongpy(args[0])
+    return r 
+   
+
+
 commands = {
     "stats": (stats_argparser(), execute_stats_cmd),
     "verify": (verify_argparser(), execute_verify_cmd),
     "scan": (None, execute_scan_cmd),
-    "load": (load_argparser(), execute_load_cmd)
+    "load": (load_argparser(), execute_load_cmd),
+    "!": (None, execute_klongpy_cmd),
 }
 
 
@@ -177,7 +185,7 @@ def execute_cmd(pool, cmd_arr):
     cmd = commands.get(cmd_arr[0])
     if cmd is None:
         raise UnknownCommandError(f"Available commands: {list(commands.keys())}")
-    return cmd[1](pool, None if cmd[0] is None else cmd[0].parse_args(cmd_arr[1:]))
+    return cmd[1](pool, cmd_arr[1:] if cmd[0] is None else cmd[0].parse_args(cmd_arr[1:]))
 
 
 # https://dev.to/amal/building-the-python-repl-3468
@@ -214,6 +222,6 @@ if not isinstance(log_level, int):
     raise ValueError('Invalid log level: %s' % args.log)
 logging.basicConfig(level=log_level)
 
-with DataFrameConnectionPool(args.host, args.port, max_connections=args.max_connections) as pool:
+with DataFrameConnectionPool(args.host, args.port, max_connections=args.max_connections, client_class=KsClient) as pool:
     repl(pool)
 
