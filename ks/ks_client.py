@@ -17,5 +17,5 @@ class KsClient(df_client.DataFrameClient):
 
     def remote_klongpy(self, klong):
         send_msg(self.conn, json.dumps({'type': 'klongpy', 'lambda': klong}).encode())
-        return recv_json(self.conn)
+        return recv_json(self.conn)['result']
 
