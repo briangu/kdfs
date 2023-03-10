@@ -1,0 +1,85 @@
+#!/usr/bin/python3
+
+import argparse
+import asyncio
+import logging
+import random
+import time
+
+import simdjson as json
+from kdfs.handlers.forward import ForwardingHandler
+from kdfs.ws import WSServer
+from websockets import serve
+
+
+def gen_random_stock(symbol = 'HELO', ev = 'AM'):
+    timestamp = int(time.time() * 1000)
+    o = random.random() * 100.0
+    h = (random.random() * 2.0) - 1.0
+    l = h - (random.random() * 2.0)
+    return {
+        'ev': ev,
+        's': timestamp - 60000,
+        'e': timestamp,
+        'sym': symbol,
+        'v': int(random.random() * 100000),
+        'o': o,
+        'c': o + (h + l) / 2,
+        'h': h,
+        'l': l,
+        's': int(random.random() * 1000.0),
+    }
+
+
+class DataGeneratorClient:
+    def __init__(self, symbols, delay):
+        self.message_queue = asyncio.Queue()
+        self.delay = delay
+        self.symbols = symbols
+
+    async def run(self):
+        while True:
+            message = gen_random_stock(random.choice(self.symbols), ev='AM')
+            logging.info(message)
+            await self.message_queue.put(json.dumps([message]))
+            await asyncio.sleep(self.delay)
+
+
+async def main(server_bind, server_port, symbols, delay):
+
+    # Start the server
+    server = WSServer()
+    server_task = serve(server.handle_client, server_bind, server_port)
+    logging.info("Server running...")
+
+    # Start the client
+    client = DataGeneratorClient(symbols, delay)
+    client_task = asyncio.create_task(client.run())
+    logging.info("Client running...")
+
+    # Start the message forwarding task
+    forwarding_handler = ForwardingHandler(server.connected_clients, client.message_queue, "AM.*")
+    message_forwarding_task = asyncio.create_task(forwarding_handler.run())
+    logging.info("Message forwarding task running...")
+
+    # Wait for all tasks to finish
+    await asyncio.gather(server_task, client_task, message_forwarding_task)
+
+
+parser = argparse.ArgumentParser(description='Run Fake WS source Service.')
+parser.add_argument('--port', type=int, help='specify alternate port (default: 5000)', default=5000)
+parser.add_argument('--bind', type=str, help='specify alternate bind address (default: 0.0.0.0)', default="0.0.0.0")
+parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
+parser.add_argument('--symbols', type=str, help='specify alternate symbol set (default: *)', default="AAPL")
+parser.add_argument('--delay', type=int, help='specify alternate replay delay (default: 60 seconds)', default=60)
+
+args = parser.parse_args()
+
+log_level = getattr(logging, args.log.upper(), None)
+if not isinstance(log_level, int):
+    raise ValueError('Invalid log level: %s' % args.log)
+logging.basicConfig(level=log_level)
+
+logging.info(f"Opening port at {args.bind} port {args.port}")
+
+asyncio.run(main(args.bind, args.port, args.symbols.split(","), args.delay))

@@ -1,0 +1,79 @@
+#!/usr/bin/python3
+
+import argparse
+import asyncio
+import importlib.util
+import logging
+import os
+
+from websockets import serve
+
+from kdfs.ws import WSClient, WSServer, KlongHandler
+from klongpy import KlongInterpreter
+
+
+async def main(ws_uri, ws_auth_token, ws_patterns, server_bind, server_port, klong, *args, **kwargs):
+    # Start the server
+    server = WSServer(pattern_prefixes=None)
+    server_task = serve(server.handle_client, server_bind, server_port)
+    logging.info("Server running...")
+
+    # Start the client
+    client = WSClient(ws_uri, ws_auth_token, ws_patterns)
+    client_task = asyncio.create_task(client.run())
+    logging.info("Client running...")
+
+    # Start the message forwarding task
+    rl_handler = KlongHandler(server.connected_clients, client.message_queue, klong, *args, **kwargs)
+    rl_task = asyncio.create_task(rl_handler.run())
+    logging.info("Handler task running...")
+
+    # Wait for all tasks to finish
+    await asyncio.gather(server_task, client_task, rl_task)
+
+
+def exec_server_cmd(pool, args):
+    logging.info(f"Opening connection to {args.host} port {args.port}")
+
+    klong = KlongInterpreter()
+
+    def on_message(msg):
+        print(msg)
+        return {'hello': 'world'}
+
+    klong['onmsg'] = on_message
+
+    # spec = importlib.util.spec_from_file_location(args.module, args.path)
+    # module = importlib.util.module_from_spec(spec)
+    # spec.loader.exec_module(module)
+
+    patterns = ""
+    asyncio.run(main(args.uri, "", patterns, args.host, args.port, klong))
+
+
+def exec_repl_cmd(pool, args):
+    pass
+
+
+parser = argparse.ArgumentParser(description='KlongPy DataFrame Service command')
+parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
+
+subparsers = parser.add_subparsers(help='sub-command help')
+sp = subparsers.add_parser('repl', help='DFS REPL')
+sp.add_argument('--uri', type=str, help='specify alternate ws uri (default: feed)', default="ws://127.0.0.1:5000")
+sp.set_defaults(func=exec_repl_cmd)
+
+sp = subparsers.add_parser('server', help='Run KlongPy DataFrame Service Server')
+sp.add_argument('--port', type=int, help='specify alternate port (default: 8000)', default=8000)
+sp.add_argument('--bind', type=str, help='specify alternate bind address (default: all interfaces)', default="0.0.0.0")
+sp.add_argument('--dir', type=str, help='specify alternate directory (default: current directory)', default=os.getcwd())
+sp.add_argument('--memory', type=int, help='specify alternate max memory usage (default: 1GB)', default=2**30)
+sp.set_defaults(func=exec_server_cmd)
+
+args = parser.parse_args()
+
+log_level = getattr(logging, args.log.upper(), None)
+if not isinstance(log_level, int):
+    raise ValueError('Invalid log level: %s' % args.log)
+logging.basicConfig(level=log_level)
+

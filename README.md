@@ -1,24 +1,28 @@
-# KlongPy DataFrame Service 
-KlongPy enabled DFS service
+# Networked KlongPy
+
+This project contains various ways of using KlongPy in networking capacities:
+
+    * Websocket pub-sub library to use KlongPy in stream processing
+    * KlongPy enabled [DFS service]() to operate on dataframes using KlongPy
 
 # Features
 
 * Run KlongPy operations on remote (service) DataFrames
 * DataFrame service that can run KlongPy on DataFrames
-* Client REPL can send KlongPy operations to remote service 
+* Client REPL can send KlongPy operations to remote service
 
 # Quick start
 
 ## Start Server
 
 ```bash
-$ ks_server --info
+$ kdfs --server
 ```
 
 ## Run REPL
 
 ```bash
-$ ks_repl
+$ kdfs
 Creating connection pool with 8 connections
 
 Welcome to KS REPL
