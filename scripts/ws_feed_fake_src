@@ -27,7 +27,6 @@ def gen_random_stock(symbol = 'HELO', ev = 'AM'):
         'c': round(o + (h + l) / 2,2),
         'h': round(h,2),
         'l': round(l,2),
-        's': int(random.random() * 1000.0),
     }
 
 
