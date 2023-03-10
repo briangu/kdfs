@@ -35,20 +35,15 @@ async def main(ws_uri, ws_auth_token, ws_patterns, server_bind, server_port, klo
 def exec_server_cmd(args):
     logging.info(f"Opening connection to {args.bind} port {args.port}")
 
+    # TODO: load .kg file with overrides for handlers (e.g. onmsg)
     klong = KlongInterpreter()
-
-    def on_message(x):
-        print(f"received: {x}")
-        return {'hello': 'world'}
-
-    klong['onmsg'] = on_message
+    klong("onmsg::{.p(x)}")
 
     # spec = importlib.util.spec_from_file_location(args.module, args.path)
     # module = importlib.util.module_from_spec(spec)
     # spec.loader.exec_module(module)
 
-    patterns = "AM.*"
-    asyncio.run(main(args.uri, "", patterns, args.bind, args.port, klong))
+    asyncio.run(main(args.uri, "", "AM.*", args.bind, args.port, klong))
 
 
 # def exec_repl_cmd(pool, args):
