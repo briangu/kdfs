@@ -12,7 +12,7 @@ from kdfs.ws import WSServer
 from websockets import serve
 
 
-def gen_random_stock(symbol, o, ev = 'AM', r=0.025):
+def gen_random_stock(symbol, o, ev = 'AM', r=0.03):
     timestamp = int(time.time() * 1000)
     h = o + (random.random() * r)
     l = o - (random.random() * r)
