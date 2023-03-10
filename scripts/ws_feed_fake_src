@@ -41,8 +41,8 @@ class DataGeneratorClient:
             for symbol in self.symbols:
                 message = gen_random_stock(symbol=symbol, o=prices[symbol], ev='AM')
                 prices[symbol] = message['c']
-            logging.info(message)
-            await self.message_queue.put(json.dumps([message]))
+                logging.info(message)
+                await self.message_queue.put(json.dumps([message]))
             await asyncio.sleep(self.delay)
 
 
