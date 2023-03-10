@@ -37,7 +37,7 @@ def exec_server_cmd(args):
 
     # TODO: load .kg file with overrides for handlers (e.g. onmsg)
     klong = KlongInterpreter()
-    klong("onmsg::{.p(x)}")
+    klong('onmsg::{.p(x?"c")}')
 
     # spec = importlib.util.spec_from_file_location(args.module, args.path)
     # module = importlib.util.module_from_spec(spec)

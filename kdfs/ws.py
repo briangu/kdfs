@@ -98,7 +98,6 @@ class KlongHandler:
             for message in messages:
                 self.klong['msg'] = message
                 processed_message = self.klong("onmsg(msg)")
-                print(processed_message)
                 for client, patterns in self.connected_clients.items():
                     try:
                         await client.send(json.dumps(processed_message))
