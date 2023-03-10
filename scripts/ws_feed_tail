@@ -1,0 +1,42 @@
+#!/usr/bin/python3
+
+import argparse
+import asyncio
+import logging
+
+from kdfs.ws import WSClient
+from kdfs.handlers.tail import TailHandler
+
+connected_clients = {}
+
+async def main(ws_uri, ws_auth_token, ws_patterns):
+    # Start the client
+    client = WSClient(ws_uri, ws_auth_token, ws_patterns)
+    client_task = asyncio.create_task(client.run())
+    logging.info("Client running...")
+
+    # Start the message forwarding task
+    echo_handler = TailHandler(client.message_queue)
+    message_forwarding_task = asyncio.create_task(echo_handler.run())
+    logging.info("Message forwarding task running...")
+
+    # Wait for all tasks to finish
+    await asyncio.gather(client_task, message_forwarding_task)
+
+
+parser = argparse.ArgumentParser(description='Run Polygon WS Service.')
+parser.add_argument('--port', type=int, help='specify alternate port (default: 5000)', default=5000)
+parser.add_argument('--host', type=str, help='specify alternate host address (default: 127.0.0.1)', default="127.0.0.1")
+parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
+parser.add_argument('--patterns', type=str, help='specify alternate subscription patterns (default: AM.*)', default="AM.*")
+
+args = parser.parse_args()
+
+log_level = getattr(logging, args.log.upper(), None)
+if not isinstance(log_level, int):
+    raise ValueError('Invalid log level: %s' % args.log)
+logging.basicConfig(level=log_level)
+
+logging.info(f"Opening connection to {args.host} port {args.port}")
+
+asyncio.run(main(f"ws://{args.host}:{args.port}", "", args.patterns))

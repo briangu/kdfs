@@ -2,14 +2,14 @@ import logging
 
 import simdjson as json
 from websockets import WebSocketException
-from datetime import datetime
 
 
 class ForwardingHandler:
-    def __init__(self, connected_clients, message_queue, all_pattern):
+    def __init__(self, connected_clients, message_queue, all_pattern, pattern_keys):
         self.connected_clients = connected_clients
         self.message_queue = message_queue
         self.all_pattern = all_pattern
+        self.pattern_keys = pattern_keys
 
     async def run(self):
         while True:
@@ -21,13 +21,13 @@ class ForwardingHandler:
                     if self.all_pattern in patterns:
                         await client.send(raw_data)
                     else:
+                        to_send = []
                         for message in messages:
-                            to_send = []
-                            if f"{message['ev']}.{message['sym']}" in patterns:
+                            key = ".".join([message[k] for k in self.pattern_keys])
+                            if key in patterns:
                                 to_send.append(message)
-                            if to_send:
-                                await client.send(json.dumps(to_send))
+                        if to_send:
+                            await client.send(json.dumps(to_send))
                 except WebSocketException:
                     logging.info("connection dropped, continuing")
                     continue
-

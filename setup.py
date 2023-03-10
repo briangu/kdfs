@@ -23,5 +23,10 @@ setup(
     python_requires='>=3.8',
     include_package_data=True,
     test_suite='tests',
-    scripts=['scripts/kdfs']
+    scripts=[
+        'scripts/kdfs',
+        'scripts/kws',
+        'scripts/ws_feed_fake_src',
+        'scripts/ws_feed_tail'
+      ]
 )

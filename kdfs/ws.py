@@ -8,7 +8,7 @@ from websockets import ConnectionClosed, WebSocketException, connect
 
 
 class WSServer:
-    def __init__(self, pattern_prefixes):
+    def __init__(self, pattern_prefixes=None):
         self.connected_clients = {}
         self.pattern_prefixes = pattern_prefixes
 
