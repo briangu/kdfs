@@ -2,7 +2,7 @@
 
 import argparse
 import asyncio
-import importlib.util
+# import importlib.util
 import logging
 import os
 
@@ -46,25 +46,13 @@ def exec_server_cmd(args):
     asyncio.run(main(args.uri, "", "AM.*", args.bind, args.port, klong))
 
 
-# def exec_repl_cmd(pool, args):
-#     pass
-
-
 parser = argparse.ArgumentParser(description='KlongPy DataFrame Service command')
 parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
-
-# subparsers = parser.add_subparsers(help='sub-command help')
-# sp = subparsers.add_parser('repl', help='DFS REPL')
-# sp.add_argument('--uri', type=str, help='specify alternate ws uri (default: feed)', default="ws://127.0.0.1:5000")
-# sp.set_defaults(func=exec_repl_cmd)
-
-# sp = subparsers.add_parser('server', help='Run KlongPy DataFrame Service Server')
 parser.add_argument('--uri', type=str, help='specify alternate ws uri (default: feed)', default="ws://127.0.0.1:5000")
 parser.add_argument('--port', type=int, help='specify alternate port (default: 5000)', default=5000)
 parser.add_argument('--bind', type=str, help='specify alternate bind address (default: all interfaces)', default="0.0.0.0")
 parser.add_argument('--dir', type=str, help='specify alternate directory (default: current directory)', default=os.getcwd())
 parser.add_argument('--memory', type=int, help='specify alternate max memory usage (default: 1GB)', default=2**30)
-# parser.set_defaults(func=exec_server_cmd)
 
 args = parser.parse_args()
 

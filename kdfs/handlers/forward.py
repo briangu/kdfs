@@ -16,7 +16,7 @@ class ForwardingHandler:
             raw_data = await self.message_queue.get()
             messages = json.loads(raw_data)
 
-            for client, patterns in self.connected_clients.items():
+            for client, patterns in self.connected_clients.copy().items():
                 try:
                     if self.all_pattern in patterns:
                         await client.send(raw_data)
