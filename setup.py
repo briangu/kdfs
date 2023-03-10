@@ -25,7 +25,7 @@ setup(
     test_suite='tests',
     scripts=[
         'scripts/kdfs',
-        'scripts/kws',
+        'scripts/ws_feed_klong',
         'scripts/ws_feed_fake_src',
         'scripts/ws_feed_tail'
       ]
