@@ -12,11 +12,10 @@ from kdfs.ws import WSServer
 from websockets import serve
 
 
-def gen_random_stock(symbol = 'HELO', ev = 'AM'):
+def gen_random_stock(symbol, o, ev = 'AM', r=0.025):
     timestamp = int(time.time() * 1000)
-    o = random.random() * 100.0
-    h = (random.random() * 2.0) - 1.0
-    l = h - (random.random() * 2.0)
+    h = o + (random.random() * r)
+    l = o - (random.random() * r)
     return {
         'ev': ev,
         's': timestamp - 60000,
@@ -24,7 +23,7 @@ def gen_random_stock(symbol = 'HELO', ev = 'AM'):
         'sym': symbol,
         'v': int(random.random() * 100000),
         'o': round(o,2),
-        'c': round(o + (h + l) / 2,2),
+        'c': round((h + l) / 2,2),
         'h': round(h,2),
         'l': round(l,2),
     }
@@ -37,8 +36,11 @@ class DataGeneratorClient:
         self.symbols = symbols
 
     async def run(self):
+        prices = {symbol:5 + (random.random() * 100.0) for symbol in self.symbols}
         while True:
-            message = gen_random_stock(random.choice(self.symbols), ev='AM')
+            for symbol in self.symbols:
+                message = gen_random_stock(symbol=symbol, o=prices[symbol], ev='AM')
+                prices[symbol] = message['c']
             logging.info(message)
             await self.message_queue.put(json.dumps([message]))
             await asyncio.sleep(self.delay)
