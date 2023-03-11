@@ -2,6 +2,7 @@ from dfs.df_client import *
 from dfs.helpers import *
 import numpy as np
 import simdjson as json
+from kdfs.helpers import run_in_executor
 
 
 col_types = {
@@ -40,6 +41,11 @@ def pandas_from_data(items):
     return create_dataframe(timestamps=timestamps, dmap=dmap)
 
 
+@run_in_executor
+def async_update(c, df, *args):
+    return c.update(df, *args)
+
+
 class DfsClientHandler:
     def __init__(self, message_queue, host, port):
         self.message_queue = message_queue
@@ -55,5 +61,5 @@ class DfsClientHandler:
                         df = pandas_from_data([message])
                         # TODO: need an asyncio friendly DFS client
                         print(df)
-                        c.update(df, 'historical', 'minute', message['sym'])
+                        await async_update(c, df, 'historical', 'minute', message['sym'])
 

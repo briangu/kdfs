@@ -47,7 +47,7 @@ Start the ws -> dfs client handler which will store the streaming stock data int
 ws_feed_dfs_client
 ```
 
-You can now poke at the DFS server to see what's there:
+You can now inspect the DFS server to see what's there:
 
 List the dataframes stored in the backing directory:
 ```bash
