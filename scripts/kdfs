@@ -22,7 +22,15 @@ def exec_server_cmd(args):
             sys.exit(0)
 
 
+
+def exec_stats_cmd(pool, level=0):
+    with pool.get_connection() as c:
+        stats = c.get_stats(level=level)
+    return json.dumps(stats, indent=2)
+
+
 commands = {
+    "stats": exec_stats_cmd,
 }
 
 

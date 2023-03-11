@@ -63,7 +63,17 @@ crtl-c to quit
 
 INFO:root:Creating connection pool with 19 connections
 ?> stats
-
+{
+  "memory": {
+    "used": "387360",
+    "free": "1073354464",
+    "max": "1073741824"
+  },
+  "config": {
+    "root_path": "/tmp/dfs",
+    "max_memory": "1073741824"
+  }
+}
 ```
 
 
