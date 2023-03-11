@@ -77,8 +77,3 @@ INFO:root:Creating connection pool with 19 connections
   }
 }
 ```
-
-
-## Run REPL
-
-TBD
