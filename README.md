@@ -49,10 +49,12 @@ ws_feed_dfs_client
 
 You can now poke at the DFS server to see what's there:
 
+List the dataframes stored in the backing directory:
 ```bash
 ll /tmp/dfs/historical/minute/
 ```
 
+Connect to the DFS process and check the stats:
 ```bash
 $ kdfs --log INFO repl
 
