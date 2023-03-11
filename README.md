@@ -31,7 +31,7 @@ Tail the feed to see what's going on:
 ws_feed_tail
 ```
 
-Start the Klong handler that can process the feed:
+Start the Klong handler that can process the feed.  By default, the Klong handler simple extracts the closing price.
 ```bash
 ws_feed_klong --port 5001
 ```
