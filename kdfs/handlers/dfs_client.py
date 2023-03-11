@@ -59,7 +59,6 @@ class DfsClientHandler:
                     messages = json.loads(await self.message_queue.get())
                     for message in messages:
                         df = pandas_from_data([message])
-                        # TODO: need an asyncio friendly DFS client
                         print(df)
                         await async_update(c, df, 'historical', 'minute', message['sym'])
 

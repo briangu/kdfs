@@ -5,6 +5,7 @@ import os
 import shlex
 import sys
 
+import simdjson as json
 from colorama import Fore, init
 from dfs.df_cache import PandasDataFrameCache
 from dfs.df_client import *
