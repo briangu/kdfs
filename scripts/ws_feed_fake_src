@@ -16,6 +16,7 @@ def gen_random_stock(symbol, o, ev = 'AM', r=0.03):
     timestamp = int(time.time() * 1000)
     h = o + (random.random() * r)
     l = o - (random.random() * r)
+    weight = random.random()
     return {
         'ev': ev,
         's': timestamp - 60000,
@@ -26,6 +27,7 @@ def gen_random_stock(symbol, o, ev = 'AM', r=0.03):
         'c': round((h + l) / 2,2),
         'h': round(h,2),
         'l': round(l,2),
+        'vw': round((h*weight + l*(1-weight)) / 2,2),
     }
 
 

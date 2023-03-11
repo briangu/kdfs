@@ -13,7 +13,7 @@ from dfs.helpers import *
 from kdfs.server import CommandHandler, KdfsServer
 
 
-def exec_server_cmd():
+def exec_server_cmd(args):
     cache = PandasDataFrameCache(max_memory=args.memory, root_path=args.dir)
     with KdfsServer(cache, (args.bind, args.port), CommandHandler) as server:
         try:
@@ -38,7 +38,7 @@ def exec_cmd(pool, cmd_arr):
 
 
 # https://dev.to/amal/building-the-python-repl-3468
-def exec_repl_cmd(pool, args):
+def exec_repl_cmd(args):
     success = lambda input: f"{Fore.GREEN}{input}"
     failure = lambda input: f"{Fore.RED}{input}"
 
@@ -52,32 +52,33 @@ def exec_repl_cmd(pool, args):
     print()
 
     try:
-        while True:
-            try:
-                p = input("?> ")
-                if len(p) == 0:
-                    continue
-                cmd_arr = shlex.split(p)
-                if len(cmd_arr) == 0:
-                    continue
-                if cmd_arr[0] == 'exit':
-                    break
-                r = exec_cmd(pool, cmd_arr)
-                print(success(r))
-            except Exception as e:
-                print(failure(f"Error: {e.args}"))
+        with DataFrameConnectionPool(args.host, args.port, max_connections=args.max_connections) as pool:
+            while True:
+                try:
+                    p = input("?> ")
+                    if len(p) == 0:
+                        continue
+                    cmd_arr = shlex.split(p)
+                    if len(cmd_arr) == 0:
+                        continue
+                    if cmd_arr[0] == 'exit':
+                        break
+                    r = exec_cmd(pool, cmd_arr)
+                    print(success(r))
+                except Exception as e:
+                    print(failure(f"Error: {e.args}"))
     except KeyboardInterrupt:
         print("\nExiting...")
 
 
 parser = argparse.ArgumentParser(description='Run DataFrame Service command')
-parser.add_argument('--port', type=int, help='specify alternate port (default: 8000)', default=8000)
-parser.add_argument('--host', type=str, help='specify alternate host address (default: 127.0.0.1)', default="127.0.0.1")
-# parser.add_argument('--max_connections', type=int, help='specify alternate source data directory (default: 8)', default=None)
 parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
 
 subparsers = parser.add_subparsers(help='sub-command help')
 sp = subparsers.add_parser('repl', help='DFS REPL')
+sp.add_argument('--host', type=str, help='specify alternate host address (default: 127.0.0.1)', default="127.0.0.1")
+sp.add_argument('--port', type=int, help='specify alternate port (default: 8000)', default=8000)
+sp.add_argument('--max_connections', type=int, help='specify alternate source data directory (default: 8)', default=None)
 sp.set_defaults(func=exec_repl_cmd)
 
 sp = subparsers.add_parser('server', help='Run KDFS Server')
@@ -94,6 +95,4 @@ if not isinstance(log_level, int):
     raise ValueError('Invalid log level: %s' % args.log)
 logging.basicConfig(level=log_level)
 
-print(args)
-# with DataFrameConnectionPool(args.host, args.port, max_connections=args.max_connections) as pool:
-#     print(args.func(pool, args))
+args.func(args)

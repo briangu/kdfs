@@ -4,26 +4,28 @@ import argparse
 import asyncio
 import logging
 
+from kdfs.handlers.dfs_client import DfsClientHandler
 from kdfs.ws import WSClient
-from kdfs.handlers.tail import TailHandler
 
 
-async def main(ws_uri, ws_auth_token, ws_patterns):
+async def main(ws_uri, ws_auth_token, ws_patterns, dfs_host, dfs_port):
     # Start the client
     client = WSClient(ws_uri, ws_auth_token, ws_patterns)
     client_task = asyncio.create_task(client.run())
     logging.info("Client running...")
 
     # Start the message forwarding task
-    echo_handler = TailHandler(client.message_queue)
+    echo_handler = DfsClientHandler(client.message_queue, dfs_host, dfs_port)
     message_forwarding_task = asyncio.create_task(echo_handler.run())
-    logging.info("Message forwarding task running...")
+    logging.info("DFS client task running...")
 
     # Wait for all tasks to finish
     await asyncio.gather(client_task, message_forwarding_task)
 
 
 parser = argparse.ArgumentParser(description='Run Polygon WS Service.')
+parser.add_argument('--dfs_port', type=int, help='specify alternate dfs port (default: 8000)', default=8000)
+parser.add_argument('--dfs_host', type=str, help='specify alternate dfs host (default: 127.0.0.1)', default="127.0.0.1")
 parser.add_argument('--port', type=int, help='specify alternate port (default: 5000)', default=5000)
 parser.add_argument('--host', type=str, help='specify alternate host address (default: 127.0.0.1)', default="127.0.0.1")
 parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
@@ -38,4 +40,4 @@ logging.basicConfig(level=log_level)
 
 logging.info(f"Opening connection to {args.host} port {args.port}")
 
-asyncio.run(main(f"ws://{args.host}:{args.port}", "", args.patterns))
+asyncio.run(main(f"ws://{args.host}:{args.port}", "", args.patterns, args.dfs_host, args.dfs_port))

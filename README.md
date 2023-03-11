@@ -18,7 +18,7 @@ KlongPy enabled [DFS service](https://github.com/briangu/dfs)
 
 # Ticker Plant example
 
-In three separate terminals:
+In separate terminals:
 
 
 Start the fake ticker feed:
@@ -35,6 +35,37 @@ Start the Klong handler that can process the feed:
 ```bash
 ws_feed_klong --port 5001
 ```
+
+Start a DFS server:
+
+```bash
+kdfs --log INFO server --dir /tmp/dfs
+```
+
+Start the ws -> dfs client handler which will store the streaming stock data into DFS
+```
+ws_feed_dfs_client
+```
+
+You can now poke at the DFS server to see what's there:
+
+```bash
+ll /tmp/dfs/historical/minute/
+```
+
+```bash
+$ kdfs --log INFO repl
+
+Welcome to KDFS REPL
+author: Brian Guarraci
+repo  : https://github.com/briangu/kdfs
+crtl-c to quit
+
+INFO:root:Creating connection pool with 19 connections
+?> stats
+
+```
+
 
 ## Run REPL
 
