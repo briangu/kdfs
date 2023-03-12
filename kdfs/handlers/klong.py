@@ -12,14 +12,12 @@ class KlongHandler:
         self.klong = klong
 
     async def run(self):
-        onmsg = self.klong['onmsg']
         while True:
             raw_data = await self.message_queue.get()
             messages = json.loads(raw_data)
 
-            # Call the onmsg function directly so we don't need to pollute the Klong context
-            # TODO: modify KlongInterpreter __call__ hide this complexity
-            r = self.klong.call(KGCall(a=onmsg.a,args=[np.array(messages,dtype=object)],arity=onmsg.arity))
+            # Call the Klong onmsg handler with messages
+            r = self.klong['onmsg'](messages)
 
             logging.info(r)
 

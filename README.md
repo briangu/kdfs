@@ -61,6 +61,33 @@ ws_feed_tail --uri ws://localhost:5001
 
 New handlers and listeners can be added to achieve the stream processing goals.
 
+The Klong handler utilizes the simple Klong <-> Python interop as follows.  Upon receiving new messages array, we can passit directly to the Klong 'onmsg' function:
+
+```python
+class KlongHandler:
+    def __init__(self, connected_clients, message_queue, klong):
+        self.connected_clients = connected_clients
+        self.message_queue = message_queue
+        self.klong = klong
+
+    async def run(self):
+        while True:
+            raw_data = await self.message_queue.get()
+            messages = json.loads(raw_data)
+
+            # Call the Klong onmsg handler with messages
+            r = self.klong['onmsg'](messages)
+
+            logging.info(r)
+
+            for client, patterns in self.connected_clients.items():
+                try:
+                    await client.send(json.dumps(r))
+                except WebSocketException:
+                    logging.info("client closed")
+                    continue
+```
+
 
 # DFS example
 
