@@ -24,8 +24,9 @@ async def main(ws_uri, ws_auth_token, ws_patterns):
 
 
 parser = argparse.ArgumentParser(description='Run Polygon WS Service.')
-parser.add_argument('--port', type=int, help='specify alternate port (default: 5000)', default=5000)
-parser.add_argument('--host', type=str, help='specify alternate host address (default: 127.0.0.1)', default="127.0.0.1")
+# parser.add_argument('--port', type=int, help='specify alternate port (default: 5000)', default=5000)
+# parser.add_argument('--host', type=str, help='specify alternate host address (default: 127.0.0.1)', default="127.0.0.1")
+parser.add_argument('--uri', type=str, help='specify alternate ws uri (default: feed)', default="ws://127.0.0.1:5000")
 parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
 parser.add_argument('--patterns', type=str, help='specify alternate subscription patterns (default: AM.*)', default="AM.*")
 
@@ -36,6 +37,6 @@ if not isinstance(log_level, int):
     raise ValueError('Invalid log level: %s' % args.log)
 logging.basicConfig(level=log_level)
 
-logging.info(f"Opening connection to {args.host} port {args.port}")
+logging.info(f"Opening connection to {args.uri}")
 
-asyncio.run(main(f"ws://{args.host}:{args.port}", "", args.patterns))
+asyncio.run(main(args.uri, "", args.patterns))
