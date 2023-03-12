@@ -1,0 +1,2 @@
+:"Create an AVG message for the batch of symbols"
+onmsg::{[a d];d:::{};d,["ev" "AVG"];a::{x?"c"}'x;d,"a",+/a%#a}

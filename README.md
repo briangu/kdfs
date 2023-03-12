@@ -31,9 +31,15 @@ Tail the feed to see what's going on:
 ws_feed_tail
 ```
 
-Start the Klong handler that can process the feed.  By default, the Klong handler simple extracts the closing price.
+Start the Klong handler that can process the feed.  We can define custom handlers in Klong that are loaded and 'onmsg" is called every message:  Here, a trivial function definition to create an average for the batch of symbols:
+
+```
+onmsg::{[a d];d:::{};d,["ev" "AVG"];a::{x?"c"}'x;d,"a",+/a%#a}
+```
+
+Specify the avg.kg when launching:
 ```bash
-ws_feed_klong --port 5001
+ws_feed_klong kg/avg.kg --port 5001
 ```
 
 Start a DFS server:

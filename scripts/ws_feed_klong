@@ -6,10 +6,11 @@ import asyncio
 import logging
 import os
 
+from klongpy import KlongInterpreter
 from websockets import serve
 
-from kdfs.ws import WSClient, WSServer, KlongHandler
-from klongpy import KlongInterpreter
+from kdfs.handlers.klong import KlongHandler
+from kdfs.ws import WSClient, WSServer
 
 
 async def main(ws_uri, ws_auth_token, ws_patterns, server_bind, server_port, klong, *args, **kwargs):
@@ -35,18 +36,14 @@ async def main(ws_uri, ws_auth_token, ws_patterns, server_bind, server_port, klo
 def exec_server_cmd(args):
     logging.info(f"Opening connection to {args.bind} port {args.port}")
 
-    # TODO: load .kg file with overrides for handlers (e.g. onmsg)
     klong = KlongInterpreter()
-    klong('onmsg::{.p(x?"c")}')
-
-    # spec = importlib.util.spec_from_file_location(args.module, args.path)
-    # module = importlib.util.module_from_spec(spec)
-    # spec.loader.exec_module(module)
+    klong(f'.l("{args.kg}")')
 
     asyncio.run(main(args.uri, "", "AM.*", args.bind, args.port, klong))
 
 
 parser = argparse.ArgumentParser(description='KlongPy DataFrame Service command')
+parser.add_argument('kg', type=str, help='specify Klong message handler file')
 parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
 parser.add_argument('--uri', type=str, help='specify alternate ws uri (default: feed)', default="ws://127.0.0.1:5000")
 parser.add_argument('--port', type=int, help='specify alternate port (default: 5000)', default=5000)

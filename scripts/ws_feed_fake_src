@@ -10,6 +10,7 @@ import simdjson as json
 from kdfs.handlers.forward import ForwardingHandler
 from kdfs.ws import WSServer
 from websockets import serve
+from kdfs.helpers import count_event_rate
 
 
 def gen_random_stock(symbol, o, ev = 'AM', r=0.03):
@@ -38,14 +39,19 @@ class DataGeneratorClient:
         self.symbols = symbols
 
     async def run(self):
+        # event_count = 0
+        # last_event_time = time.time()
         prices = {symbol:5 + (random.random() * 100.0) for symbol in self.symbols}
         while True:
+            messages = []
             for symbol in self.symbols:
                 message = gen_random_stock(symbol=symbol, o=prices[symbol], ev='AM')
                 prices[symbol] = message['c']
                 logging.info(message)
-                await self.message_queue.put(json.dumps([message]))
+                messages.append(message)
+            await self.message_queue.put(json.dumps(messages))
             await asyncio.sleep(self.delay)
+            # event_count, last_event_time = count_event_rate(event_count+1, last_event_time, print_rate=True, units=1)
 
 
 async def main(server_bind, server_port, symbols, delay):
