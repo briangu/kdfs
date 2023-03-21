@@ -8,7 +8,7 @@ with open(os.path.join(directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='klongpy_dfs_service',
-    packages=['kdfs'],
+    packages=['kdfs','kdfs.handlers'],
     version='0.1.0',
     description='DataFrame service with embedded KlongPy.',
     author='Brian Guarraci',
