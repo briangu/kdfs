@@ -91,7 +91,7 @@ class KlongHandler:
 
 ## Grafana
 
-![alt text](https://github.com/briangu/kdfs/blob/main/grafana_a.msf.png?raw=true)
+![Grafana candlestick chart for A.MSFT stream](https://github.com/briangu/kdfs/blob/79ba26010c0e5a7897884588fc1c5340b39fa86f/docs/imgs/grafana_a.msft.png?raw=true)
 
 # DFS example
 
