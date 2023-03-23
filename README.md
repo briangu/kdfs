@@ -89,7 +89,12 @@ class KlongHandler:
                     continue
 ```
 
-## Grafana
+## Visualizing feed data with Grafana
+
+Using Grafana and a websocket plugin, you can easily visualize the streaming feed data.  Here we visualize the A.MSFT symbol using candlestick chart which will look like this:
+
+![Grafana candlestick chart for A.MSFT stream](docs/imgs/grafana_a.msft.png?raw=true)
+
 
 Start Grafana (e.g. via Docker) w/ the golioth-websocket-datasource
 ```
@@ -102,11 +107,15 @@ Run the Grafana websocket relay that feeds off of the fake data generator:
 ws_feed_grafana --log INFO --patterns 'A.MSFT,A.AAPL,A.TSLA'
 ```
 
-Create a dashboard and panel with a candlestick chart type:
+Create a dashboard and panel with a candlestick chart type and setup the fields using jsonPath selectors:
+
+![Field setup](docs/imgs/grafana_a.msft_fields.png?raw=true)
+
+The whole panel setup for OHCL looks like:
+
+![Panel setup](docs/imgs/grafana_a.msft_panel_setup.png?raw=true)
 
 
-
-![Grafana candlestick chart for A.MSFT stream](https://github.com/briangu/kdfs/blob/79ba26010c0e5a7897884588fc1c5340b39fa86f/docs/imgs/grafana_a.msft.png?raw=true)
 
 # DFS example
 
