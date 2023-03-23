@@ -91,6 +91,21 @@ class KlongHandler:
 
 ## Grafana
 
+Start Grafana (e.g. via Docker) w/ the golioth-websocket-datasource
+```
+docker run -d --network host -e "GF_INSTALL_PLUGINS=golioth-websocket-datasource"  grafana/grafana-oss
+```
+
+Run the Grafana websocket relay that feeds off of the fake data generator:
+
+```
+ws_feed_grafana --log INFO --patterns 'A.MSFT,A.AAPL,A.TSLA'
+```
+
+Create a dashboard and panel with a candlestick chart type:
+
+
+
 ![Grafana candlestick chart for A.MSFT stream](https://github.com/briangu/kdfs/blob/79ba26010c0e5a7897884588fc1c5340b39fa86f/docs/imgs/grafana_a.msft.png?raw=true)
 
 # DFS example
