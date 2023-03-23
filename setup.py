@@ -29,5 +29,6 @@ setup(
         'scripts/ws_feed_fake_src',
         'scripts/ws_feed_tail',
         'scripts/ws_feed_dfs_client',
+        'scripts/ws_feed_grafana',
       ]
 )

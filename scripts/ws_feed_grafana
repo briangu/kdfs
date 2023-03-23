@@ -1,0 +1,49 @@
+#!/usr/bin/python3
+
+import argparse
+import asyncio
+import logging
+
+from websockets import serve
+
+from kdfs.handlers.forward import ForwardingHandler
+from kdfs.ws import GrafanaWSServer, WSClient
+
+
+async def main(server_bind, server_port, ws_uri, ws_auth_token, ws_patterns):
+    # Start the server
+    server = GrafanaWSServer()
+    server_task = serve(server.handle_client, server_bind, server_port)
+    logging.info("Server running...")
+
+    # Start the client
+    client = WSClient(ws_uri, ws_auth_token, ws_patterns)
+    client_task = asyncio.create_task(client.run())
+    logging.info("Client running...")
+
+    # Start the message forwarding task
+    forwarding_handler = ForwardingHandler(server.connected_clients, client.message_queue, None, ['ev','sym'])
+    message_forwarding_task = asyncio.create_task(forwarding_handler.run())
+    logging.info("Message forwarding task running...")
+
+    # Wait for all tasks to finish
+    await asyncio.gather(server_task, client_task, message_forwarding_task)
+
+
+parser = argparse.ArgumentParser(description='Run Polygon WS Service.')
+parser.add_argument('--port', type=int, help='specify alternate port (default: 6000)', default=6000)
+parser.add_argument('--bind', type=str, help='specify alternate bind address (default: 0.0.0.0)', default="0.0.0.0")
+parser.add_argument('--uri', type=str, help='specify alternate ws uri (default: feed)', default="ws://127.0.0.1:5000")
+parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
+parser.add_argument('--patterns', type=str, help='specify alternate subscription patterns (default: AM.*)', default="AM.*")
+
+args = parser.parse_args()
+
+log_level = getattr(logging, args.log.upper(), None)
+if not isinstance(log_level, int):
+    raise ValueError('Invalid log level: %s' % args.log)
+logging.basicConfig(level=log_level)
+
+logging.info(f"Opening connection to {args.uri}")
+
+asyncio.run(main(args.bind, args.port, args.uri, "", args.patterns))

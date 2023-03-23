@@ -18,7 +18,7 @@ class ForwardingHandler:
 
             for client, patterns in self.connected_clients.copy().items():
                 try:
-                    if self.all_pattern in patterns:
+                    if patterns is None or self.all_pattern in patterns:
                         await client.send(raw_data)
                     else:
                         to_send = []
