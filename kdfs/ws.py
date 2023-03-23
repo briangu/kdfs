@@ -95,26 +95,7 @@ class GrafanaWSServer(WSServer):
         try:
             self.connected_clients[websocket] = None
             async for message in websocket:
-                logging.info(f"Received message from client: {message}")
-                pass
-            #     try:
-            #         data = json.loads(message)
-            #         print(data)
-            #         if data["action"] == "subscribe" or 'fields' in data:
-            #             patterns = 'AM.*' if 'fields' in data else data["params"].split(",")
-            #             logging.info(f"subscribing: {patterns}")
-            #             if self.validator.is_valid_subscription(patterns):
-            #                 self.connected_clients[websocket] = patterns
-            #                 response = {"ev": "status", "status": "success", "message": f"subscribed to: {','.join(patterns)}"}
-            #                 logging.info(f"Client subscribed to patterns: {patterns}")
-            #             else:
-            #                 response = {"ev": "status", "status": "error", "message": f"invalid subscription: {','.join(patterns)}"}
-            #                 logging.info(f"Client failed to subscribe to patterns: {patterns}")
-            #             await websocket.send(json.dumps(response))
-            #         elif data["action"] == "auth":
-            #             await websocket.send(json.dumps(self.handle_auth(data)))
-            #     except:
-            #         pass
+                logging.info(f"Ignoring message from client: {message}")
         finally:
             # Remove client from set of connected clients
             logging.info("client closed connection")
