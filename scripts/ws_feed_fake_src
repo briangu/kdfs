@@ -13,7 +13,7 @@ from websockets import serve
 from kdfs.helpers import count_event_rate
 
 
-def gen_random_stock(symbol, o, ev = 'AM', r=0.03):
+def gen_random_stock(ev, symbol, o, r=0.03):
     timestamp = int(time.time() * 1000)
     h = o + (random.random() * r)
     l = o - (random.random() * r)
@@ -33,10 +33,11 @@ def gen_random_stock(symbol, o, ev = 'AM', r=0.03):
 
 
 class DataGeneratorClient:
-    def __init__(self, symbols, delay):
+    def __init__(self, ev, symbols, delay):
         self.message_queue = asyncio.Queue()
-        self.delay = delay
+        self.ev = ev
         self.symbols = symbols
+        self.delay = delay
 
     async def run(self):
         # event_count = 0
@@ -45,7 +46,7 @@ class DataGeneratorClient:
         while True:
             messages = []
             for symbol in self.symbols:
-                message = gen_random_stock(symbol=symbol, o=prices[symbol], ev='AM')
+                message = gen_random_stock(self.ev, symbol, prices[symbol])
                 prices[symbol] = message['c']
                 logging.info(message)
                 messages.append(message)
@@ -54,7 +55,7 @@ class DataGeneratorClient:
             # event_count, last_event_time = count_event_rate(event_count+1, last_event_time, print_rate=True, units=1)
 
 
-async def main(server_bind, server_port, symbols, delay):
+async def main(server_bind, server_port, ev, symbols, delay):
 
     # Start the server
     server = WSServer()
@@ -62,7 +63,7 @@ async def main(server_bind, server_port, symbols, delay):
     logging.info("Server running...")
 
     # Start the client
-    client = DataGeneratorClient(symbols, delay)
+    client = DataGeneratorClient(ev, symbols, delay)
     client_task = asyncio.create_task(client.run())
     logging.info("Client running...")
 
@@ -79,6 +80,7 @@ parser = argparse.ArgumentParser(description='Run Fake WS source Service.')
 parser.add_argument('--port', type=int, help='specify alternate port (default: 5000)', default=5000)
 parser.add_argument('--bind', type=str, help='specify alternate bind address (default: 0.0.0.0)', default="0.0.0.0")
 parser.add_argument('--log', type=str, help='specify alternate logging level (default: WARN)', default="WARN")
+parser.add_argument('--ev', type=str, help='specify alternate symbol event type (default: AM)', default="AM")
 parser.add_argument('--symbols', type=str, help='specify alternate symbol set (default: AAPL)', default="AAPL")
 parser.add_argument('--delay', type=int, help='specify alternate replay delay (default: 1 second)', default=1)
 
@@ -91,4 +93,4 @@ logging.basicConfig(level=log_level)
 
 logging.info(f"Opening port at {args.bind} port {args.port}")
 
-asyncio.run(main(args.bind, args.port, args.symbols.split(","), args.delay))
+asyncio.run(main(args.bind, args.port, args.ev, args.symbols.split(","), args.delay))

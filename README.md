@@ -5,6 +5,7 @@ This project contains various ways of using [KlongPy](https://github.com/briangu
     * Websocket based Ticker Plant example showing how to use KlongPy in stream processing
     * KlongPy enabled [DFS service]() to operate on dataframes using KlongPy
     * IPC between Klong processes (TBD)
+    * Simple Graphana integration via websockets
 
 # Related
 
@@ -22,7 +23,7 @@ To see this in action, in separate terminals:
 
 Start the fake ticker feed:
 ```bash
-ws_feed_fake_src --symbols AAPL,MSFT,TSLA
+ws_feed_fake_src --log INFO --symbols AAPL,MSFT,TSLA --delay 1
 ```
 
 Tail the feed to see what's going on:
@@ -88,6 +89,9 @@ class KlongHandler:
                     continue
 ```
 
+## Grafana
+
+![alt text](https://github.com/briangu/kdfs/blob/main/grafana_a.msf.png?raw=true)
 
 # DFS example
 
